@@ -1,0 +1,18 @@
+[package]
+name = "termfold"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Terminal textfold — Ruler (O(1) line layout fold), terminal I/O, terminal image rendering, ratatui/crossterm compatibility shims."
+publish = false
+
+[dependencies]
+# The text layout kernel — Ruler, Box, AFM.
+ruler = { git = "https://gitlab.tas.twn.network/twn/ptyktos/ruler.git", branch = "main" }
+# No external deps — zero-dep kernel
+
+[features]
+default = []
+ratatui = ["dep:bitflags"]  # ratatui compat layer uses bitflags
+
+[workspace]
