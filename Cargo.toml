@@ -9,7 +9,9 @@ publish = false
 [dependencies]
 # The text layout kernel — Ruler, Box, AFM.
 ruler = { git = "https://gitlab.tas.twn.network/twn/ptyktos/ruler.git", branch = "main" }
-# No external deps — zero-dep kernel
+# ratatui compat layer uses bitflags; was referenced by the `ratatui` feature below without
+# ever being listed here, which broke manifest parsing for every consumer of this crate.
+bitflags = { version = "2", optional = true }
 
 [features]
 default = []
