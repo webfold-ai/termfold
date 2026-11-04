@@ -14,20 +14,17 @@ pub fn enable_raw_mode() -> io::Result<TerminalGuard> {
     let prev = std::process::Command::new("stty")
         .args(["-F", "/dev/tty", "-g"])
         .output()
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, format!("stty -g: {e}")))?;
+        .map_err(|e| io::Error::other(format!("stty -g: {e}")))?;
     let saved = String::from_utf8_lossy(&prev.stdout).trim().to_string();
     if saved.is_empty() {
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
-            "stty -g returned empty (not a terminal?)",
-        ));
+        return Err(io::Error::other("stty -g returned empty (not a terminal?)"));
     }
     let status = std::process::Command::new("stty")
         .args(["-F", "/dev/tty", "raw", "-echo", "-isig", "-ixon"])
         .status()
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, format!("stty raw: {e}")))?;
+        .map_err(|e| io::Error::other(format!("stty raw: {e}")))?;
     if !status.success() {
-        return Err(io::Error::new(io::ErrorKind::Other, "stty raw failed"));
+        return Err(io::Error::other("stty raw failed"));
     }
     Ok(TerminalGuard { saved })
 }
@@ -53,7 +50,7 @@ pub fn size() -> io::Result<(u16, u16)> {
     let out = std::process::Command::new("stty")
         .args(["size", "-F", "/dev/tty"])
         .output()
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, format!("stty size: {e}")))?;
+        .map_err(|e| io::Error::other(format!("stty size: {e}")))?;
     let text = String::from_utf8_lossy(&out.stdout).trim().to_string();
     let parts: Vec<&str> = text.split_whitespace().collect();
     if parts.len() == 2 {
@@ -176,7 +173,7 @@ pub fn poll(timeout: Duration) -> io::Result<bool> {
     });
     match rx.recv_timeout(timeout) {
         Ok(true) => Ok(true),
-        Ok(false) => Err(io::Error::new(io::ErrorKind::Other, "stdin read error")),
+        Ok(false) => Err(io::Error::other("stdin read error")),
         Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
             // Can't cancel the spawned thread, but it will block on stdin
             // This is a best-effort poll; the thread stays alive until stdin has data
@@ -186,7 +183,9 @@ pub fn poll(timeout: Duration) -> io::Result<bool> {
     }
 }
 
-fn parse_event(bytes: &[u8]) -> Event {
+/// Parse one already-read input sequence (what [`read`] returns for those bytes). Exposed so
+/// the byte-level parser can be fuzzed and unit-tested; input is any byte slice.
+pub fn parse_event(bytes: &[u8]) -> Event {
     if bytes.is_empty() {
         return Event::Key(KeyEvent {
             code: KeyCode::Esc,
@@ -268,7 +267,7 @@ fn parse_csi(params: &[u8]) -> Event {
             cur = 0;
             i += 1;
         } else if b.is_ascii_digit() {
-            cur = cur * 10 + (b - b'0') as i32;
+            cur = cur.saturating_mul(10).saturating_add((b - b'0') as i32);
             i += 1;
         } else {
             nums.push(cur);
@@ -316,7 +315,7 @@ fn parse_mouse_sgr(params: &[u8]) -> Event {
             idx += 1;
             cur = 0;
         } else if b.is_ascii_digit() {
-            cur = cur * 10 + (b - b'0') as i32;
+            cur = cur.saturating_mul(10).saturating_add((b - b'0') as i32);
         } else {
             last = b; // final byte: 'M' press / 'm' release
             break;
@@ -342,9 +341,14 @@ fn parse_mouse_sgr(params: &[u8]) -> Event {
     };
     Event::Mouse(MouseEvent {
         kind,
-        col: col.saturating_sub(1).max(0) as u16,
-        row: row.saturating_sub(1).max(0) as u16,
+        col: to_cell(col),
+        row: to_cell(row),
     })
+}
+
+/// SGR coordinates are 1-based; convert to 0-based and clamp to the `u16` range.
+fn to_cell(v: i32) -> u16 {
+    u16::try_from((v - 1).max(0)).unwrap_or(u16::MAX)
 }
 
 /// Enable mouse reporting (button presses + wheel) in SGR (1006) mode.
@@ -401,7 +405,7 @@ pub fn set_fg(color: u8) -> io::Result<()> {
     if color < 16 {
         write!(io::stdout(), "\x1b[{}m", 30 + color)
     } else {
-        write!(io::stdout(), "\x1b[38;5;{}m", color)
+        write!(io::stdout(), "\x1b[38;5;{color}m")
     }
 }
 /// Set background color.
@@ -409,7 +413,7 @@ pub fn set_bg(color: u8) -> io::Result<()> {
     if color < 16 {
         write!(io::stdout(), "\x1b[{}m", 40 + color)
     } else {
-        write!(io::stdout(), "\x1b[48;5;{}m", color)
+        write!(io::stdout(), "\x1b[48;5;{color}m")
     }
 }
 /// Set bold attribute.
