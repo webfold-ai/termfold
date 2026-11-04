@@ -2,19 +2,17 @@
 name = "termfold"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.88"
 license = "MIT OR Apache-2.0"
 description = "Terminal textfold — Ruler (O(1) line layout fold), terminal I/O, terminal image rendering, ratatui/crossterm compatibility shims."
+repository = "https://github.com/Ptyktos/termfold"
+readme = "README.md"
 publish = false
 
 [dependencies]
 # The text layout kernel — Ruler, Box, AFM.
-ruler = { git = "https://gitlab.tas.twn.network/twn/ptyktos/ruler.git", branch = "main" }
-# ratatui compat layer uses bitflags; was referenced by the `ratatui` feature below without
-# ever being listed here, which broke manifest parsing for every consumer of this crate.
-bitflags = { version = "2", optional = true }
-
-[features]
-default = []
-ratatui = ["dep:bitflags"]  # ratatui compat layer uses bitflags
+ruler = { git = "https://github.com/webfold-ai/ruler", rev = "a37d96c7aeaf688fa912f28243a16a32558fac64" }
+# Required: `terminal::KeyModifiers` is a `bitflags!` type in the default build.
+bitflags = "2"
 
 [workspace]

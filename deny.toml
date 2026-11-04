@@ -1,0 +1,37 @@
+# cargo-deny policy for termfold. Run from the repository root:
+#   cargo deny check advisories bans licenses sources
+
+[graph]
+all-features = false
+
+[advisories]
+version = 2
+yanked = "deny"
+ignore = []
+
+[licenses]
+version = 2
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Unicode-3.0",
+]
+confidence-threshold = 0.8
+
+[bans]
+multiple-versions = "warn"
+# Git dependencies have no version requirement, which cargo-deny reports as a wildcard. The only
+# git source is pinned by `rev` and restricted by `allow-git` below, so this is a warning here.
+wildcards = "warn"
+highlight = "all"
+allow = []
+deny = []
+skip = []
+skip-tree = []
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+# The only git source: the ruler kernel, pinned by `rev` in Cargo.toml.
+allow-git = ["https://github.com/webfold-ai/ruler"]
