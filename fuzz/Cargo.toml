@@ -1,0 +1,25 @@
+[package]
+name = "termfold-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+
+[dependencies.termfold]
+path = ".."
+
+# This crate is its own workspace root so cargo does not walk up into termfold's manifest.
+[workspace]
+members = ["."]
+
+[[bin]]
+name = "fuzz_parse_event"
+path = "fuzz_targets/fuzz_parse_event.rs"
+test = false
+doc = false
+bench = false

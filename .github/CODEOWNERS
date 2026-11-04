@@ -1,0 +1,5 @@
+# Code ownership for required code-owner review.
+# TODO(maintainers): replace the placeholders with at least two real human owners
+# (GitHub users or teams). Do not list bot accounts. Until this is done, code-owner
+# review assigns nobody.
+*       @OWNER-1 @OWNER-2
