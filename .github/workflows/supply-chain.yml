@@ -62,7 +62,9 @@ jobs:
       - name: Install cargo-cyclonedx
         run: cargo install --locked cargo-cyclonedx
       - name: Generate SBOM
-        run: cargo cyclonedx --format json --override-filename termfold.sbom.json
+        # --override-filename is a prefix; cargo-cyclonedx appends the format extension,
+        # so this writes termfold.sbom.json (matching the upload path below).
+        run: cargo cyclonedx --format json --override-filename termfold.sbom
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: termfold-cyclonedx-sbom

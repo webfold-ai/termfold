@@ -39,8 +39,9 @@ accepted rather than suppressed.
 
 Release archives are built from the tagged commit. They carry three kinds of evidence:
 
-1. A cosign keyless signature (`.sig` and `.cert`) on the archive and on `SHA256SUMS`. The certificate
-   identity is the release workflow at the tag.
+1. A cosign keyless signature bundle (`.sigstore.json`) on the archive and on `SHA256SUMS`. The bundle
+   carries the signature, the certificate and the transparency-log entry. The certificate identity is
+   the release workflow at the tag, and is checked at verification time.
 2. SLSA build provenance, as a GitHub artifact attestation and as an `.intoto.jsonl` file.
 3. A SHA-256 checksum file.
 
@@ -54,8 +55,7 @@ sha256sum -c SHA256SUMS
 
 # Sigstore signature on the archive
 cosign verify-blob \
-  --certificate termfold-v0.1.0.tar.gz.cert \
-  --signature termfold-v0.1.0.tar.gz.sig \
+  --bundle termfold-v0.1.0.tar.gz.sigstore.json \
   --certificate-identity 'https://github.com/Ptyktos/termfold/.github/workflows/release.yml@refs/tags/v0.1.0' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
   termfold-v0.1.0.tar.gz
