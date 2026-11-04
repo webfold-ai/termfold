@@ -9,7 +9,7 @@ security fixes. There are no backports.
 
 Please report suspected vulnerabilities privately, not in a public issue or pull request:
 
-**https://github.com/Ptyktos/termfold/security/advisories/new** (GitHub private vulnerability reporting)
+**https://github.com/Ptyktos/termfold/security/advisories/new** (GitHub private vulnerability reporting), or email the security team at security@twn.systems
 
 Include the affected commit, the platform and terminal emulator, and a minimal input that
 reproduces the problem (for the input parser, the raw bytes are usually enough).
