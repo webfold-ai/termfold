@@ -1,5 +1,7 @@
 # termfold
 
+> **Status: research build.** This code is not production-ready. It is being hardened toward a production release, and interfaces, formats and results may change without notice.
+
 [![CI](https://github.com/Ptyktos/termfold/actions/workflows/ci.yml/badge.svg)](https://github.com/Ptyktos/termfold/actions/workflows/ci.yml)
 
 Terminal I/O for Rust: raw mode, input-event parsing, and ANSI escape writers, with no `unsafe`
