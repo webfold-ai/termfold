@@ -1,9 +1,8 @@
-//! Terminal I/O kernel — raw mode, ANSI escapes, event reading, image rendering.
+//! Terminal input parsing and ANSI output: Linux raw-mode helpers, keyboard and mouse event
+//! parsing, and escape writers. The `crossterm` module is a path shim over `terminal`, not a
+//! crossterm implementation. Pre-release; see README.md for the supported subset and limits.
 //!
-//! Terminal-specific face of the text layout stack. The general text
-//! layout kernel (Ruler, Box, AFM pdf-base14) lives in `Ptyktos/ruler` and
-//! is re-exported here for backward compat with code that uses
-//! `termfold::{Box, Ruler}`.
+//! The text layout kernel (`Box`, `Ruler`) lives in `webfold-ai/ruler` and is re-exported here.
 
 #![forbid(unsafe_code)]
 
@@ -19,3 +18,8 @@ pub use ruler::{Box, Ruler};
 
 pub mod crossterm;
 pub mod terminal;
+
+// Compile and run the README's Rust examples as doc tests so they cannot go stale.
+#[cfg(doctest)]
+#[doc = include_str!("../README.md")]
+struct ReadmeDoctests;

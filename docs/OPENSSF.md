@@ -63,7 +63,7 @@ Changes from the templates:
 Caretaker's fleet tooling can take over the rest. Not run here, and not without maintainer input:
 
 ```bash
-caretakerctl ossf apply --repo Ptyktos/termfold --crate-name termfold \
+caretakerctl ossf apply --repo webfold-ai/termfold --crate-name termfold \
   --import-entry termfold::terminal::parse_event \
   --code-owners '@real-owner-1 @real-owner-2' --skip-ruleset
 ```

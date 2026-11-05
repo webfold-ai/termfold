@@ -4,9 +4,10 @@
 
 - **Rust dependencies.** `Cargo.lock` is committed, and CI builds with `--locked`. Lockfile changes
   come with the dependency change.
-- **The one git dependency.** `ruler` is pinned to a full commit with `rev = "a37d96c…"`. The
-  repository (`https://github.com/webfold-ai/ruler`) is the only git source allowed in `deny.toml`.
-  Changing the rev is a deliberate review point.
+- **The one git dependency.** `ruler` is a git dependency on `https://github.com/webfold-ai/ruler`,
+  pinned with `rev = "a37d96c7aeaf688fa912f28243a16a32558fac64"` (the same commit is recorded in
+  `Cargo.lock`). That URL is the only git source allowed in `deny.toml`. Changing the rev is a
+  deliberate review point.
 - **GitHub Actions.** Every `uses:` is pinned to a 40-hex commit SHA, and the tag is kept in a comment.
   `dtolnay/rust-toolchain` is pinned to the head of its `1.88.0` branch.
 - **Toolchain.** CI uses Rust 1.88.0, which is the `rust-version` in `Cargo.toml`.
@@ -56,12 +57,12 @@ sha256sum -c SHA256SUMS
 # Sigstore signature on the archive
 cosign verify-blob \
   --bundle termfold-v0.1.0.tar.gz.sigstore.json \
-  --certificate-identity 'https://github.com/Ptyktos/termfold/.github/workflows/release.yml@refs/tags/v0.1.0' \
+  --certificate-identity 'https://github.com/webfold-ai/termfold/.github/workflows/release.yml@refs/tags/v0.1.0' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
   termfold-v0.1.0.tar.gz
 
 # GitHub build-provenance attestation
-gh attestation verify termfold-v0.1.0.tar.gz --repo Ptyktos/termfold
+gh attestation verify termfold-v0.1.0.tar.gz --repo webfold-ai/termfold
 ```
 
 ## Known gaps

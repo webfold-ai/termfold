@@ -1,7 +1,7 @@
-//! Terminal raw-mode, event reading, and ANSI control — replaces `crossterm`.
+//! Terminal raw mode, event reading, and ANSI control (a supported subset, not a crossterm
+//! replacement).
 //!
-//! Derived from `sang adapt` of crossterm source (B/U 1.28 bits/symbol irreducible).
-//! Zero `unsafe`. Raw mode via `stty`. Terminal size via ANSI escape query.
+//! Zero `unsafe`. Raw mode and terminal size via GNU `stty` (Linux only).
 //! Event parsing via standard byte reading. All ANSI escapes are string writes.
 
 use std::io::{self, Read, Write};

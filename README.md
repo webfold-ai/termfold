@@ -2,34 +2,91 @@
 
 > **Status: research build.** This code is not production-ready. It is being hardened toward a production release, and interfaces, formats and results may change without notice.
 
-[![CI](https://github.com/Ptyktos/termfold/actions/workflows/ci.yml/badge.svg)](https://github.com/Ptyktos/termfold/actions/workflows/ci.yml)
+[![CI](https://github.com/webfold-ai/termfold/actions/workflows/ci.yml/badge.svg)](https://github.com/webfold-ai/termfold/actions/workflows/ci.yml)
 
-Terminal I/O for Rust: raw mode, input-event parsing, and ANSI escape writers, with no `unsafe`
-code. It re-exports the text-layout types from [`ruler`](https://github.com/webfold-ai/ruler) and
-provides a `crossterm`-shaped module path.
+Terminal input parsing and ANSI output for Rust. Provides Linux raw-mode helpers, keyboard and mouse
+event parsing, and escape writers. A compatibility module exposes selected items under
+crossterm-shaped paths. Pre-release. This is a supported subset, not a drop-in crossterm or ratatui
+replacement.
 
 **Status: 0.1.0, pre-release (`publish = false`).** The API is not stable and the crate is not on
-crates.io. Read the limitations below before using it.
+crates.io. Read the limitations below before using it. The crate also re-exports the text-layout
+types `Box` and `Ruler` from [`ruler`](https://github.com/webfold-ai/ruler). `#![forbid(unsafe_code)]`
+is set in `src/lib.rs`.
 
-## What is in the crate
+## Smallest working example
 
-| Module | Contents | Notes |
+Parsing needs no terminal, so this runs anywhere. It is compiled and run as a doc test by
+`cargo test`.
+
+```rust
+use termfold::terminal::{parse_event, Event, KeyCode, KeyModifiers};
+
+// An Up-arrow key press as the terminal sends it: ESC [ A.
+match parse_event(b"\x1b[A") {
+    Event::Key(key) => {
+        assert_eq!(key.code, KeyCode::Up);
+        assert_eq!(key.modifiers, KeyModifiers::NONE);
+    }
+    other => panic!("unexpected event: {other:?}"),
+}
+```
+
+A minimal interactive loop (needs a Linux terminal and GNU `stty`; compiled but not run by the doc
+test):
+
+```rust,no_run
+use termfold::terminal::{enable_raw_mode, read, Event, KeyCode};
+
+fn main() -> std::io::Result<()> {
+    let _guard = enable_raw_mode()?; // restores the terminal settings on drop
+    loop {
+        if let Event::Key(key) = read()? {
+            if key.code == KeyCode::Char('q') {
+                return Ok(());
+            }
+        }
+    }
+}
+```
+
+## Capabilities
+
+| Feature | Status | Notes |
 |---|---|---|
-| `terminal` | `enable_raw_mode` / `TerminalGuard`, `size`, `read`, `poll`, `parse_event`, `Event` / `KeyEvent` / `KeyCode` / `KeyModifiers` / `MouseEvent`, cursor and colour escape writers, mouse capture (SGR 1006) | Raw mode and size use `stty` |
-| `crossterm` | Re-exports of the `terminal` items under crossterm's module names (`terminal`, `event`, `cursor`, `style`) | A path shim, not a crossterm implementation |
-| crate root | `Box` and `Ruler`, re-exported from `ruler` | Pinned to `ruler` rev `a37d96c` |
+| Raw mode (`enable_raw_mode`, `TerminalGuard`) | Works on Linux | Shells out to `stty -F /dev/tty` (GNU coreutils). Not supported on BSD or macOS. |
+| Terminal size (`size`) | Works on Linux | `stty size`. Falls back to 80x24 if the output cannot be parsed. |
+| Blocking read (`read`) | Works | Reads one key or escape sequence from `/dev/stdin`. |
+| Non-blocking poll (`poll`) | Best effort | Spawns a thread that cannot be cancelled; it stays alive until input arrives. |
+| Key parsing (`parse_event`) | Works, fuzzed | Single keys, CSI (arrows, Home/End, function and editing keys), Alt-prefixed keys. Unrecognised sequences become `KeyCode::Esc`. |
+| Mouse parsing and capture | Works | SGR 1006 reports. Coordinates are 0-based and clamped to `u16`. |
+| `Event::Resize` | Not produced | The variant exists, but nothing in the crate emits it. |
+| ANSI escape writers | Works | Cursor movement and visibility, alternate screen, clear, 0-255 colour, bold, flush. They write to stdout. |
+| `crossterm` module | Path shim | Re-exports `terminal` items under `crossterm::{terminal, event, cursor, style}`. No `execute!` or `queue!`, no command types, no `MouseEvent` or `KeyEventKind`. `enable_raw_mode` returns a guard rather than `()`. |
+| `Box`, `Ruler` | Re-export | From `ruler`, pinned in `Cargo.toml`. |
+| Windows, macOS | Not supported | Linux only. |
+| Image output, ratatui adapters | Not compiled | See "Experimental source (not compiled)". |
 
-`#![forbid(unsafe_code)]` is set in `src/lib.rs`.
+## Modules
 
-### Not compiled in this snapshot
+| Module | Contents |
+|---|---|
+| `terminal` | The items in the table above |
+| `crossterm` | Path shim over `terminal` |
+| crate root | `Box` and `Ruler` from `ruler`, pinned to `ruler` rev `a37d96c` |
 
-`src/image.rs`, `src/image/graphics.rs` (half-block, kitty and sixel image output) and
-`src/ratatui_compat.rs` (ratatui widget adapters) are **not part of the build**. They import a
-`tui` module (`Buffer`, `Cell`, `Color`, `Modifier`, `Rect`, `Style`, widget types) that is not in
-this repository. The earlier README placed that module in `Ptyktos/biota`, which this session could
-not reach. `ratatui_compat` also needs the `ratatui` crate, which is not a dependency. Those files
-are kept for reference. Restoring them needs a decision: vendor the `tui` types here, or depend on
-the crate that owns them.
+## Experimental source (not compiled)
+
+These files are in the tree for reference only. They are not in the module tree, are not part of any
+build, and are not available features.
+
+- `src/image.rs` and `src/image/graphics.rs`: half-block, kitty and sixel image output.
+- `src/ratatui_compat.rs`: ratatui widget adapters.
+
+They import a `tui` module (`Buffer`, `Cell`, `Color`, `Modifier`, `Rect`, `Style`, widget types)
+that is not in this repository. `ratatui_compat` also needs the `ratatui` crate, which is not a
+dependency. Restoring them needs a decision: vendor the `tui` types here, or depend on the crate that
+owns them.
 
 ## Platform and behaviour
 
@@ -38,7 +95,7 @@ the crate that owns them.
   supported by the current code.
 - `read()` opens `/dev/stdin` on every call and reads one escape sequence.
 - `poll()` starts a thread that reads stdin. The source notes that the thread cannot be cancelled
-  and stays alive until input arrives. Treat it as best-effort.
+  and stays alive until input arrives, and the byte it reads is consumed. Treat it as best-effort.
 - `parse_event` decodes single-key, CSI (arrows, Home/End, function and editing keys), Alt-prefixed
   keys, and SGR mouse reports. It is `pub` so that tests and fuzzing can reach it. Unrecognised
   sequences become `KeyCode::Esc`.
