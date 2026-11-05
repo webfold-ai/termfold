@@ -31,8 +31,7 @@ maintainer action.
 
 ## Open items for maintainers
 
-1. **CODEOWNERS.** `.github/CODEOWNERS` contains the placeholders `@OWNER-1 @OWNER-2`. Replace them with
-   at least two real human owners. A single owner can lock the project, and bot accounts do not count.
+1. **CODEOWNERS.** Resolved: `.github/CODEOWNERS` lists `@twn-lloyd @yokoszn`, two human owners.
 2. **Branch protection.** Require pull requests, at least one approving review (two if you want the
    stricter caretaker tier), code-owner review, and the `Rust checks` status check. Block force-pushes
    and deletions. Do not add admin bypass.
