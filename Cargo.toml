@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 rust-version = "1.88"
 license = "MIT OR Apache-2.0"
-description = "Terminal textfold — Ruler (O(1) line layout fold), terminal I/O, terminal image rendering, ratatui/crossterm compatibility shims."
-repository = "https://github.com/Ptyktos/termfold"
+description = "Terminal input parsing and ANSI output for Rust (Linux): raw mode, key and mouse events, escape writers, and a crossterm-shaped path shim. Pre-release."
+repository = "https://github.com/webfold-ai/termfold"
 readme = "README.md"
 publish = false
 

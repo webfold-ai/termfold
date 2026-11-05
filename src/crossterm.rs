@@ -1,10 +1,8 @@
-//! Crossterm compatibility — masquerade traits so code written against crossterm
-//! compiles unchanged when using `termfold::crossterm::` instead of `crossterm::`.
+//! Crossterm-shaped paths for a selected subset of `termfold::terminal`.
 //!
-//! Drop-in replacement: change `use crossterm::X` to `use termfold::crossterm::X`.
-//! All the core types (Event, KeyCode, KeyEvent, KeyModifiers) and functions
-//! (raw mode, terminal size, event read, cursor control) are re-exported from
-//! `termfold::terminal` with the same API surface.
+//! This is a path shim, not a drop-in replacement: only the items re-exported below exist, and
+//! their signatures follow `termfold::terminal`, not crossterm (for example `enable_raw_mode`
+//! returns a guard). There is no `execute!`/`queue!` and no command types.
 
 pub use crate::terminal::{
     clear_all, enable_raw_mode, enter_alternate_screen, flush, hide_cursor, leave_alternate_screen,
