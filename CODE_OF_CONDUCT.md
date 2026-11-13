@@ -50,7 +50,7 @@ officially representing the community in public spaces.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the
 community leaders responsible for enforcement through a GitHub private security advisory
-(https://github.com/webfold-ai/termfold/security/advisories/new) or by email to hello@twn.systems. All complaints will be reviewed and investigated promptly and fairly.
+(https://github.com/webfold-ai/termfold/security/advisories/new) or by email to hello@webfold.ai. All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the reporter of any
 incident.
