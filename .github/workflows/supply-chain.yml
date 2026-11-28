@@ -65,7 +65,7 @@ jobs:
         # --override-filename is a prefix; cargo-cyclonedx appends the format extension,
         # so this writes termfold.sbom.json (matching the upload path below).
         run: cargo cyclonedx --format json --override-filename termfold.sbom
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: termfold-cyclonedx-sbom
           path: termfold.sbom.json
